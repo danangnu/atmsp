@@ -1,0 +1,29 @@
+{
+  "logging": {
+    "maskPan": true,
+    "level": "info",
+    "file": "logs/atmsp.log",
+    "rotateMB": 5,
+    "rotateFiles": 3
+  },
+  "devices": {
+    "CARDREADER1": {
+      "type": "card_reader",
+      "timeouts": { "openMs": 5000, "executeMs": 10000 },
+      "features": { "emv": true, "contactless": false }
+    },
+    "PINPAD1": {
+      "type": "pin_pad",
+      "timeouts": { "openMs": 5000, "executeMs": 15000 },
+      "features": { "bypassAllowed": false }
+    },
+    "PRINTER1": {
+      "type": "printer",
+      "timeouts": { "openMs": 5000, "executeMs": 10000 }
+    },
+    "SENSORS1": {
+      "type": "sensors",
+      "timeouts": { "openMs": 3000, "executeMs": 5000 }
+    }
+  }
+}

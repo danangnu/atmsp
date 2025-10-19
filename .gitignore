@@ -1,0 +1,79 @@
+﻿# --- Build trees (CMake/VS/Ninja) ---
+/build/
+/cmake-build-*/
+/out/
+/dist/
+/bin/
+/lib/
+/Debug/
+/Release/
+/RelWithDebInfo/
+/MinSizeRel/
+
+# --- CMake generated files ---
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+Makefile
+compile_commands.json
+Testing/
+_Dart*/
+CTestTestfile.cmake
+
+# --- Visual Studio / MSBuild ---
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.opendb
+*.VC.db
+*.VC.VC.opendb
+*.tlog
+
+# --- Compiled objects / binaries ---
+*.obj
+*.o
+*.lo
+*.a
+*.lib
+*.iobj
+*.ipch
+*.ipdb
+*.pdb
+*.idb
+*.ilk
+*.dll
+*.exe
+*.exp
+*.so
+*.dylib
+*.pch
+
+# --- Ninja ---
+.ninja_deps
+.ninja_log
+
+# --- Logs & runtime output ---
+/logs/
+*.log
+
+# --- Coverage / profiling ---
+*.gcno
+*.gcda
+*.gcov
+*.profraw
+*.profdata
+
+# --- Cache / misc ---
+*.cache
+.cache/
+*.tmp
+*.swp
+*.DS_Store
+Thumbs.db
+
+# --- IDEs ---
+.vscode/
+.idea/
