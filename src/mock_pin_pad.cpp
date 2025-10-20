@@ -1,6 +1,9 @@
 ﻿#include <thread>
 #include <chrono>
 #include <atomic>
+#include <memory>
+#include <nlohmann/json.hpp>
+
 #include "atmsp/pin_pad_sp.h"
 #include "atmsp/events.h"
 #include "atmsp/logging.h"
@@ -33,35 +36,59 @@ public:
 
     std::future<nlohmann::json> execute(const std::string& command,
                                         const nlohmann::json& payload) override {
+        // ---- Failure controls ----
+        if (command == "InjectPinError") {
+            next_pin_error_.store(true);
+            std::promise<nlohmann::json> p;
+            p.set_value(nlohmann::json{{"ok", true}});
+            return p.get_future();
+        }
+
+        // ---- Normal commands ----
         if (command == "RequestPin") {
+            // Publish a request event (so UI/upper layer can show prompt)
             if (bus_) {
                 PinRequested req;
-                req.minLen = payload.value("minLen", 4);
-                req.maxLen = payload.value("maxLen", 12);
+                req.minLen        = payload.value("minLen", 4);
+                req.maxLen        = payload.value("maxLen", 12);
                 req.bypassAllowed = payload.value("bypass", false);
                 bus_->publish(req);
             }
-            auto pr = std::make_shared<std::promise<nlohmann::json>>();
+
+            // If an error was injected, fail this request immediately
+            if (next_pin_error_.exchange(false)) {
+                std::promise<nlohmann::json> p;
+                p.set_value(nlohmann::json{{"ok", false}, {"error", "KeypadFailure"}});
+                return p.get_future();
+            }
+
+            // Happy path: return masked input asynchronously
+            auto pr  = std::make_shared<std::promise<nlohmann::json>>();
             auto fut = pr->get_future();
-            std::thread([this, pr](){
+            std::thread([this, pr]() {
                 std::this_thread::sleep_for(1500ms);
                 if (bus_) bus_->publish(PinEntered{ .masked = "****" });
-                pr->set_value(nlohmann::json{{"ok", true},{"masked","****"}});
+                pr->set_value(nlohmann::json{{"ok", true}, {"masked", "****"}});
             }).detach();
             return fut;
-        } else {
-            std::promise<nlohmann::json> p;
-            p.set_value(nlohmann::json{{"ok", false},{"error","UnknownCommand"}});
-            return p.get_future();
         }
+
+        // Unknown command
+        std::promise<nlohmann::json> p;
+        p.set_value(nlohmann::json{{"ok", false}, {"error", "UnknownCommand"}, {"command", command}});
+        return p.get_future();
     }
+
+    ~MockPinPad() override { close(); }
 
 private:
     EventBus* bus_ {nullptr};
     std::string logical_;
     std::atomic<bool> opened_ {false};
+    std::atomic<bool> next_pin_error_{false};
 };
 
+// Factory
 std::unique_ptr<IPinPadSP> make_mock_pin_pad() {
     return std::make_unique<MockPinPad>();
 }

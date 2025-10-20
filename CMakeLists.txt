@@ -31,6 +31,8 @@ add_library(atmsp
     src/session.cpp
     src/mock_card_reader.cpp
     src/mock_pin_pad.cpp
+    src/config.cpp
+    src/xfs_adapter.cpp
 )
 target_include_directories(atmsp PUBLIC include)
 target_link_libraries(atmsp PUBLIC spdlog::spdlog_header_only nlohmann_json::nlohmann_json)
@@ -56,6 +58,7 @@ if (BUILD_TESTS)
     tests/test_event_bus.cpp
     tests/test_session.cpp
     tests/test_mocks.cpp
+    tests/test_config.cpp
   )
   target_link_libraries(atmsp_tests PRIVATE atmsp GTest::gtest_main)
   include(GoogleTest)
